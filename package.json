@@ -12,14 +12,16 @@
   "devDependencies": {
     "@tsconfig/node21": "^21.0.3",
     "@types/node": "^20.12.2",
-    "prisma": "^5.11.0",
+    "@types/uuid": "^9.0.8",
+    "prisma": "^5.12.0",
     "tsx": "^4.7.1",
     "typescript": "^5.4.3"
   },
   "dependencies": {
-    "@prisma/client": "^5.11.0",
+    "@prisma/client": "^5.12.0",
     "dotenv": "^16.4.5",
     "fastify": "^4.26.2",
+    "fastify-type-provider-zod": "^1.1.9",
     "zod": "^3.22.4"
   }
 }

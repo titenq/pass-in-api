@@ -1,4 +1,4 @@
-const slug = (str: string) => {
+const generateSlug = (str: string) => {
   return str
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -8,4 +8,4 @@ const slug = (str: string) => {
     .replace(/ /g, '-');
 };
 
-export default slug;
+export default generateSlug;
