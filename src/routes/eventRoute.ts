@@ -4,13 +4,76 @@ import { ZodTypeProvider } from 'fastify-type-provider-zod';
 
 import generateSlug from '../helpers/generateSlug';
 import EventModel from '../models/eventModel';
-import { EventRequestBody } from '../interfaces/eventInterface';
+import { EventRequestBody, EventRequestParams } from '../interfaces/eventInterface';
 import prisma from '../lib/prisma';
 
 const eventRoute = async (fastify: FastifyInstance, options: any) => {
-  fastify.get('/events', async (request: FastifyRequest, reply: FastifyReply) => {
-    reply.send({ message: 'event online' });
-  });
+  fastify
+    .withTypeProvider<ZodTypeProvider>()
+    .get(
+      '/events/:eventId',
+      {
+        schema: {
+          params: z.object({
+            eventId: z.string().uuid()
+          }),
+          response: {
+            200: z.object({
+              id: z.string().uuid(),
+              title: z.string(),
+              details: z.string().nullable(),
+              maximumAttendees: z.number().int().positive().nullable(),
+              isActive: z.boolean(),
+              slug: z. string(),
+              createdAt: z.date(),
+              attendeesAmount: z.number().int().positive().nullable()
+            })
+          }
+        }
+      },
+      async (
+        request: FastifyRequest<{ Params: EventRequestParams }>,
+        reply: FastifyReply
+      ) => {
+        try {
+          const { eventId } = request.params;
+
+          const event = await prisma.event.findUnique({
+            select: {
+              id: true,
+              title: true,
+              details: true,
+              maximumAttendees: true,
+              isActive: true,
+              slug: true,
+              createdAt: true,
+              _count: {
+                select: {
+                  attendees: true
+                }
+              }
+            },
+            where: {
+              id: eventId
+            }
+          });
+
+          if (!event) {
+            return reply.status(404).send({ error: 'Evento não encontrado.' });
+          }
+
+          const { _count, ...rest } = event;
+
+          const eventReply = {
+            ...rest,
+            attendeesAmount: _count?.attendees
+          };
+
+          return reply.status(200).send(eventReply);
+        } catch (error) {
+          console.log('error: ', error);
+        }
+      });
 
   fastify
     .withTypeProvider<ZodTypeProvider>()

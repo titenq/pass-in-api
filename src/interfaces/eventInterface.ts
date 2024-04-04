@@ -4,3 +4,7 @@ export interface EventRequestBody {
   maximumAttendees?: number | null;
   isActive: boolean;
 }
+
+export interface EventRequestParams {
+  eventId: string;
+}
