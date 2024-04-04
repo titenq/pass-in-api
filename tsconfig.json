@@ -15,5 +15,5 @@
 
   "extends": "@tsconfig/node21/tsconfig.json",
 
-  "include": ["src"]
+  "include": ["src", "homeRoute.ts", "src/routes/indexRoute.ts"]
 }

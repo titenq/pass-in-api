@@ -14,6 +14,8 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
       '/events/:eventId',
       {
         schema: {
+          summary: 'Buscar evento por id',
+          tags: ['events'],
           params: z.object({
             eventId: z.string().uuid()
           }),
@@ -81,6 +83,8 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
       '/events/:eventId/attendees',
       {
         schema: {
+          summary: 'Buscar participantes pelo id do evento',
+          tags: ['events'],
           params: z.object({
             eventId: z.string().uuid()
           }),
@@ -164,6 +168,8 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
       '/events',
       {
         schema: {
+          summary: 'Criar evento',
+          tags: ['events'],
           body: z.object({
             title: z.string().min(4),
             details: z.string().nullable(),
