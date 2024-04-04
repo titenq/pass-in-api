@@ -4,7 +4,7 @@ import { ZodTypeProvider } from 'fastify-type-provider-zod';
 
 import generateSlug from '../helpers/generateSlug';
 import EventModel from '../models/eventModel';
-import { EventRequestBody, EventRequestParams } from '../interfaces/eventInterface';
+import { EventRequestBody, EventRequestParams, EventRequestQuery } from '../interfaces/eventInterface';
 import prisma from '../lib/prisma';
 
 const eventRoute = async (fastify: FastifyInstance, options: any) => {
@@ -24,7 +24,7 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
               details: z.string().nullable(),
               maximumAttendees: z.number().int().positive().nullable(),
               isActive: z.boolean(),
-              slug: z. string(),
+              slug: z.string(),
               createdAt: z.date(),
               attendeesAmount: z.number().int().positive().nullable()
             })
@@ -70,6 +70,89 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
           };
 
           return reply.status(200).send(eventReply);
+        } catch (error) {
+          console.log('error: ', error);
+        }
+      });
+
+  fastify
+    .withTypeProvider<ZodTypeProvider>()
+    .get(
+      '/events/:eventId/attendees',
+      {
+        schema: {
+          params: z.object({
+            eventId: z.string().uuid()
+          }),
+          querystring: z.object({
+            page: z.string().nullish().default('1').transform(Number),
+            limit: z.string().nullish().default('10').transform(Number),
+            query: z.string().nullish()
+          }),
+          response: {
+            200: z.object({
+              attendees: z.array(
+                z.object({
+                  id: z.number().int().positive(),
+                  name: z.string().min(4),
+                  email: z.string().email(),
+                  createdAt: z.date(),
+                  eventId: z.string().uuid(),
+                  checkInAt: z.date().nullable()
+                })
+              )
+            })
+          }
+        }
+      },
+      async (
+        request: FastifyRequest<{ Params: EventRequestParams, Querystring: EventRequestQuery }>,
+        reply: FastifyReply
+      ) => {
+        try {
+          const { eventId } = request.params;
+          const { page, limit, query } = request.query;
+
+          const attendees = await prisma.attendee.findMany({
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              createdAt: true,
+              eventId: true,
+              checkIn: {
+                select: {
+                  createdAt: true
+                }
+              }
+            },
+            where: query ? {
+              eventId,
+              name: {
+                contains: query
+              }
+            } : {
+              eventId
+            },
+            take: limit,
+            skip: (page - 1) * limit,
+            orderBy: {
+              createdAt: 'desc'
+            }
+          });
+
+          const attendeesMap = attendees.map(attendee => {
+            const { checkIn, ...rest } = attendee;
+
+            const attendeesReply = {
+              ...rest,
+              checkInAt: attendee.checkIn?.createdAt
+            };
+
+            return attendeesReply;
+          });
+
+          return reply.status(200).send({ attendees: attendeesMap });
         } catch (error) {
           console.log('error: ', error);
         }

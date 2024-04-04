@@ -77,6 +77,53 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
 
   fastify
     .withTypeProvider<ZodTypeProvider>()
+    .get(
+      '/attendees/:attendeeId/check-in',
+      {
+        schema: {
+          params: z.object({
+            attendeeId: z.coerce.number().int().positive()
+          }),
+          response: {
+            201: z.object({
+              id: z.number().int().positive(),
+              createdAt: z.date(),
+              attendeeId: z.number().int().positive()
+            })
+          }
+        }
+      },
+      async (
+        request: FastifyRequest<{ Params: AttendeeBadgeRequestParams }>,
+        reply: FastifyReply
+      ) => {
+        try {
+          const { attendeeId } = request.params;
+
+          const attendeeCheckIn = await prisma.checkIn.findUnique({
+            where: {
+              attendeeId
+            }
+          });
+
+          if (attendeeCheckIn) {
+            return reply.status(409).send({ error: 'Check In já realizado com o ID do participante.' });
+          }
+
+          const checkIn = await prisma.checkIn.create({
+            data: {
+              attendeeId
+            }
+          });
+
+          return reply.status(201).send(checkIn);
+        } catch (error) {
+          console.log('error: ', error);
+        }
+      });
+
+  fastify
+    .withTypeProvider<ZodTypeProvider>()
     .post(
       '/events/:eventId/attendees',
       {

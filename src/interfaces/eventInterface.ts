@@ -8,3 +8,9 @@ export interface EventRequestBody {
 export interface EventRequestParams {
   eventId: string;
 }
+
+export interface EventRequestQuery {
+  page: number;
+  limit: number;
+  query?: string;
+}
