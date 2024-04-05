@@ -10,4 +10,5 @@ export interface AttendeeRequestParams {
 
 export interface AttendeeBadgeRequestParams {
   attendeeId: number;
+  checkInId: string;
 }

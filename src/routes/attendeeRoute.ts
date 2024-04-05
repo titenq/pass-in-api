@@ -9,12 +9,13 @@ import {
   AttendeeRequestParams
 } from '../interfaces/attendeeInterface';
 import prisma from '../lib/prisma';
+import generateCheckInId from '../helpers/generateCheckInId';
 
 const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
   fastify
     .withTypeProvider<ZodTypeProvider>()
     .get(
-      '/attendees/:attendeeId/badge',
+      '/attendees/:attendeeId/badge/:checkInId',
       {
         schema: {
           summary: 'Buscar informações do participante pelo id',
@@ -27,10 +28,15 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
               message: 'O parâmetro attendeeId deve ser um número inteiro'
             }).positive({
               message: 'O parâmetro attendeeId deve ser um número inteiro positivo'
+            }),
+            checkInId: z.string({
+              required_error: 'O parâmetro checkInId é obrigatório',
+              invalid_type_error: 'O parâmetro checkInId deve ser um texto'
             })
           }),
           response: {
             200: z.object({
+              checkInId: z.string(),
               name: z.string().min(4),
               email: z.string().email(),
               eventTitle: z.string().min(4),
@@ -48,6 +54,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
 
           const attendee = await prisma.attendee.findUnique({
             select: {
+              checkInId: true,
               name: true,
               email: true,
               event: {
@@ -68,7 +75,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
           const protocol = request.protocol;
           const hostname = request.hostname;
           const baseURL = `${protocol}://${hostname}`;
-          const checkInURL = new URL(`attendees/${attendeeId}/check-in`, baseURL).toString();
+          const checkInURL = new URL(`attendees/${attendeeId}/check-in/${attendee.checkInId}`, baseURL).toString();
 
           const { event, ...rest } = attendee;
 
@@ -99,7 +106,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
   fastify
     .withTypeProvider<ZodTypeProvider>()
     .get(
-      '/attendees/:attendeeId/check-in',
+      '/attendees/:attendeeId/check-in/:checkInId',
       {
         schema: {
           summary: 'Fazer check-in do participante pelo id',
@@ -112,13 +119,18 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
               message: 'O parâmetro attendeeId deve ser um número inteiro'
             }).positive({
               message: 'O parâmetro attendeeId deve ser um número inteiro positivo'
+            }),
+            checkInId: z.string({
+              required_error: 'O parâmetro checkInId é obrigatório',
+              invalid_type_error: 'O parâmetro checkInId deve ser um texto'
             })
           }),
           response: {
             201: z.object({
               id: z.number().int().positive(),
               createdAt: z.date(),
-              attendeeId: z.number().int().positive()
+              attendeeId: z.number().int().positive(),
+              checkInId: z.string()
             })
           }
         }
@@ -128,7 +140,18 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
         reply: FastifyReply
       ) => {
         try {
-          const { attendeeId } = request.params;
+          const { attendeeId, checkInId } = request.params;
+
+          const attendee = await prisma.attendee.findUnique({
+            where: {
+              id: attendeeId ,
+              checkInId: checkInId
+            }
+          });
+
+          if (!attendee) {
+            return reply.status(409).send({ error: 'Id e checkInId do participante não conferem.' });
+          }
 
           const attendeeCheckIn = await prisma.checkIn.findUnique({
             where: {
@@ -142,7 +165,8 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
 
           const checkIn = await prisma.checkIn.create({
             data: {
-              attendeeId
+              attendeeId,
+              checkInId
             }
           });
 
@@ -251,6 +275,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
 
           const attendee: AttendeeModel = await prisma.attendee.create({
             data: {
+              checkInId: generateCheckInId(),
               name,
               email,
               eventId
@@ -259,20 +284,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
 
           return reply.status(201).send({ attendeeId: attendee.id });
         } catch (error) {
-          console.log(error instanceof ZodError);
-          console.log('ERRO:', error);
-
-          console.log('\n\n\ninstance: ', error, '\n\n\n');
-
-          if (error instanceof ZodError) {
-            const flattenedErrors = error.flatten();
-
-            console.error(flattenedErrors);
-
-            return reply.status(400).send({ error: flattenedErrors });
-          }
-
-          console.log('\n\n\nREPLY: ', reply, '\n\n\n');
+          console.error(error);
 
           return reply.status(501).send(error);
         }

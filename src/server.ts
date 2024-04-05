@@ -10,6 +10,7 @@ import fastifySwaggerUi from '@fastify/swagger-ui';
 import fastifyCors from '@fastify/cors';
 
 import indexRoute from './routes/indexRoute';
+import generateCheckInId from './helpers/generateCheckInId';
 
 const port = process.env.PORT;
 
@@ -51,7 +52,7 @@ const startServer = async () => {
 try {
   startServer();
 
-  console.log(`API started in http://localhost:${port}`)
+  console.log(`API started in http://localhost:${port}`);
 } catch (err) {
   fastify.log.error(err);
 

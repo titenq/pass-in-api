@@ -26,6 +26,7 @@ model Event {
 
 model Attendee {
   id        Int      @id @default(autoincrement())
+  checkInId String @map("check_in_id")
   name      String
   email     String
   createdAt DateTime @default(now()) @map("created_at")
@@ -40,6 +41,7 @@ model Attendee {
 
 model CheckIn {
   id        Int      @id @default(autoincrement())
+  checkInId String @map("check_in_id")
   createdAt DateTime @default(now()) @map("created_at")
 
   attendee   Attendee @relation(fields: [attendeeId], references: [id], onDelete: Cascade)
