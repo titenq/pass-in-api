@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
 
 import AttendeeModel from '../models/attendeeModel';
@@ -75,6 +75,18 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
         } catch (error) {
           console.log('error: ', error);
         }
+      }).setErrorHandler((error, request, reply) => {
+        if (error instanceof ZodError) {
+          reply.status(400).send({
+            statusCode: 400,
+            error: 'Bad Request',
+            issues: error.issues,
+          });
+
+          return;
+        }
+
+        reply.send(error);
       });
 
   fastify
@@ -124,6 +136,18 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
         } catch (error) {
           console.log('error: ', error);
         }
+      }).setErrorHandler((error, request, reply) => {
+        if (error instanceof ZodError) {
+          reply.status(400).send({
+            statusCode: 400,
+            error: 'Bad Request',
+            issues: error.issues,
+          });
+          
+          return;
+        }
+
+        reply.send(error);
       });
 
   fastify
@@ -135,7 +159,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
           summary: 'Registrar participante pelo id do evento',
           tags: ['attendee'],
           body: z.object({
-            name: z.string().min(4),
+            name: z.string({ invalid_type_error: 'O campo nome deve ser um texto' }).min(4),
             email: z.string().email()
           }),
           params: z.object({
@@ -212,8 +236,35 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
 
           return reply.status(201).send({ attendeeId: attendee.id });
         } catch (error) {
-          console.log('error: ', error);
+          console.log(error instanceof ZodError);
+          console.log('ERRO:', error);
+
+          console.log('\n\n\ninstance: ', error, '\n\n\n');
+
+          if (error instanceof ZodError) {
+            const flattenedErrors = error.flatten();
+
+            console.error(flattenedErrors);
+
+            return reply.status(400).send({ error: flattenedErrors });
+          }
+
+          console.log('\n\n\nREPLY: ', reply, '\n\n\n');
+
+          return reply.status(501).send(error);
         }
+      }).setErrorHandler((error, request, reply) => {
+        if (error instanceof ZodError) {
+          reply.status(400).send({
+            statusCode: 400,
+            error: 'Bad Request',
+            issues: error.issues,
+          });
+          
+          return;
+        }
+
+        reply.send(error);
       });
 };
 

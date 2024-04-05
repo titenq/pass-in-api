@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
 
 import generateSlug from '../helpers/generateSlug';
@@ -75,6 +75,18 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
         } catch (error) {
           console.log('error: ', error);
         }
+      }).setErrorHandler((error, request, reply) => {
+        if (error instanceof ZodError) {
+          reply.status(400).send({
+            statusCode: 400,
+            error: 'Bad Request',
+            issues: error.issues,
+          });
+          
+          return;
+        }
+
+        reply.send(error);
       });
 
   fastify
@@ -160,6 +172,18 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
         } catch (error) {
           console.log('error: ', error);
         }
+      }).setErrorHandler((error, request, reply) => {
+        if (error instanceof ZodError) {
+          reply.status(400).send({
+            statusCode: 400,
+            error: 'Bad Request',
+            issues: error.issues,
+          });
+          
+          return;
+        }
+
+        reply.send(error);
       });
 
   fastify
@@ -216,6 +240,18 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
         } catch (error) {
           console.log('error: ', error);
         }
+      }).setErrorHandler((error, request, reply) => {
+        if (error instanceof ZodError) {
+          reply.status(400).send({
+            statusCode: 400,
+            error: 'Bad Request',
+            issues: error.issues,
+          });
+          
+          return;
+        }
+
+        reply.send(error);
       });
 };
 
