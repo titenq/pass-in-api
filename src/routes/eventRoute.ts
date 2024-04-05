@@ -195,11 +195,18 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
           summary: 'Criar evento',
           tags: ['events'],
           body: z.object({
-            title: z.string().min(4),
+            title: z.string().min(4).max(64),
             details: z.string().nullable(),
-            maximumAttendees: z.number().int().positive().nullable(),
+            maximumAttendees: z.number({
+              required_error: 'O campo maximumAttendees é obrigatório',
+              invalid_type_error: 'O campo maximumAttendees deve ser um número inteiro positivo'
+            }).int({
+              message: 'O campo maximumAttendees deve ser um número inteiro'
+            }).positive({
+              message: 'O campo maximumAttendees deve ser um número inteiro positivo'
+            }).nullable(),
             isActive: z.boolean()
-          }),
+          }).describe('title: string, mínimo 4 caracteres, máximo 64 caracteres\ndetails: string, não obrigatório\nmaximumAttendees: número inteiro positivo, não obrigatório\nisActive: boolean'),
           response: {
             201: z.object({
               eventId: z.string().uuid()

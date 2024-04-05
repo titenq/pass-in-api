@@ -20,7 +20,14 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
           summary: 'Buscar informações do participante pelo id',
           tags: ['attendee'],
           params: z.object({
-            attendeeId: z.coerce.number().int().positive()
+            attendeeId: z.coerce.number({
+              required_error: 'O parâmetro attendeeId é obrigatório',
+              invalid_type_error: 'O parâmetro attendeeId deve ser um número inteiro positivo'
+            }).int({
+              message: 'O parâmetro attendeeId deve ser um número inteiro'
+            }).positive({
+              message: 'O parâmetro attendeeId deve ser um número inteiro positivo'
+            })
           }),
           response: {
             200: z.object({
@@ -98,7 +105,14 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
           summary: 'Fazer check-in do participante pelo id',
           tags: ['check-in'],
           params: z.object({
-            attendeeId: z.coerce.number().int().positive()
+            attendeeId: z.coerce.number({
+              required_error: 'O parâmetro attendeeId é obrigatório',
+              invalid_type_error: 'O parâmetro attendeeId deve ser um número inteiro positivo'
+            }).int({
+              message: 'O parâmetro attendeeId deve ser um número inteiro'
+            }).positive({
+              message: 'O parâmetro attendeeId deve ser um número inteiro positivo'
+            })
           }),
           response: {
             201: z.object({
@@ -168,9 +182,11 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
               message: 'O campo nome dever ter no máximo 64 caracteres'
             }),
             email: z.string().email()
-          }).describe('name string min 4 max 64 e email'),
+          }).describe('name: string, mínimo 4 caracteres, máximo 64 caracteres\nemail: string'),
           params: z.object({
-            eventId: z.string().uuid()
+            eventId: z.string().uuid({
+              message: 'UUID inválida'
+            })
           }),
           response: {
             201: z.object({
