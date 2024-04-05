@@ -159,9 +159,16 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
           summary: 'Registrar participante pelo id do evento',
           tags: ['attendee'],
           body: z.object({
-            name: z.string({ invalid_type_error: 'O campo nome deve ser um texto' }).min(4),
+            name: z.string({
+              invalid_type_error: 'O campo nome deve ser um texto',
+              required_error: 'O campo nome é obrigatório'
+            }).min(4, {
+              message: 'O campo nome deve ter no mínimo 4 caracteres'
+            }).max(64, {
+              message: 'O campo nome dever ter no máximo 64 caracteres'
+            }),
             email: z.string().email()
-          }),
+          }).describe('name string min 4 max 64 e email'),
           params: z.object({
             eventId: z.string().uuid()
           }),

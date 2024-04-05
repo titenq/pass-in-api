@@ -7,12 +7,21 @@ import {
 } from 'fastify-type-provider-zod';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui';
+import fastifyCors from '@fastify/cors';
 
 import indexRoute from './routes/indexRoute';
 
-const port= process.env.PORT;
+const port = process.env.PORT;
 
 const fastify = Fastify({ logger: true });
+
+let origin: string = '*';
+
+if (process.env.NODE_ENV === 'PROD') {
+  origin = 'http://dominio.com.br';
+}
+
+fastify.register(fastifyCors, { origin });
 
 fastify.register(fastifySwagger, {
   swagger: {
@@ -36,7 +45,7 @@ fastify.setSerializerCompiler(serializerCompiler);
 
 const startServer = async () => {
   await indexRoute(fastify);
-  await fastify.listen({ port: Number(port) });
+  await fastify.listen({ port: Number(port), host: '0.0.0.0' });
 };
 
 try {
