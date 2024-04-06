@@ -50,7 +50,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
         reply: FastifyReply
       ) => {
         try {
-          const { attendeeId } = request.params;
+          const { attendeeId, checkInId } = request.params;
 
           const attendee = await prisma.attendee.findUnique({
             select: {
@@ -64,7 +64,8 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
               }
             },
             where: {
-              id: attendeeId
+              id: attendeeId,
+              checkInId
             }
           });
 
@@ -145,7 +146,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
           const attendee = await prisma.attendee.findUnique({
             where: {
               id: attendeeId ,
-              checkInId: checkInId
+              checkInId
             }
           });
 
