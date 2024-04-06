@@ -7,6 +7,7 @@ interface EventModel extends RouteGenericInterface {
   maximumAttendees: number | null;
   slug: string;
   isActive: boolean;
+  eventDate: Date;
   createdAt: Date;
 }
 

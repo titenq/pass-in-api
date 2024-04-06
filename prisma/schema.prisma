@@ -17,6 +17,7 @@ model Event {
   slug             String   @unique
   maximumAttendees Int?     @map("maximum_attendees")
   isActive         Boolean  @default(true) @map("is_active")
+  eventDate        DateTime @map("event_date")
   createdAt        DateTime @default(now()) @map("created_at")
 
   attendees Attendee[]
@@ -26,13 +27,13 @@ model Event {
 
 model Attendee {
   id        Int      @id @default(autoincrement())
-  checkInId String @map("check_in_id")
+  checkInId String   @map("check_in_id")
   name      String
   email     String
   createdAt DateTime @default(now()) @map("created_at")
   eventId   String   @map("event_id")
 
-  event   Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event   Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   checkIn CheckIn?
 
   @@unique([eventId, email])
@@ -41,11 +42,11 @@ model Attendee {
 
 model CheckIn {
   id        Int      @id @default(autoincrement())
-  checkInId String @map("check_in_id")
+  checkInId String   @map("check_in_id")
   createdAt DateTime @default(now()) @map("created_at")
 
   attendee   Attendee @relation(fields: [attendeeId], references: [id], onDelete: Cascade)
-  attendeeId Int @unique @map("attendee_id")
+  attendeeId Int      @unique @map("attendee_id")
 
   @@map("check_ins")
 }

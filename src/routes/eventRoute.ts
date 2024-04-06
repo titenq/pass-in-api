@@ -82,7 +82,7 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
             error: 'Bad Request',
             issues: error.issues,
           });
-          
+
           return;
         }
 
@@ -179,7 +179,7 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
             error: 'Bad Request',
             issues: error.issues,
           });
-          
+
           return;
         }
 
@@ -205,8 +205,11 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
             }).positive({
               message: 'O campo maximumAttendees deve ser um número inteiro positivo'
             }).nullable(),
-            isActive: z.boolean()
-          }).describe('title: string, mínimo 4 caracteres, máximo 64 caracteres\ndetails: string, não obrigatório\nmaximumAttendees: número inteiro positivo, não obrigatório\nisActive: boolean'),
+            isActive: z.boolean(),
+            eventDate: z.string().datetime({
+              message: 'O campo eventDate está com o formato de data inválido'
+            })
+          }).describe('title: string, mínimo 4 caracteres, máximo 64 caracteres\ndetails: string, não obrigatório\nmaximumAttendees: número inteiro positivo, não obrigatório\nisActive: boolean\neventDate: string no formato 2024-04-18T22:30:00Z'),
           response: {
             201: z.object({
               eventId: z.string().uuid()
@@ -223,8 +226,11 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
             title,
             details,
             maximumAttendees,
-            isActive
+            isActive,
+            eventDate
           } = request.body;
+
+          console.log(eventDate)
 
           const slug = generateSlug(title);
           const isSlug = await prisma.event.findUnique({ where: { slug } });
@@ -239,7 +245,8 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
               details,
               maximumAttendees,
               slug,
-              isActive
+              isActive,
+              eventDate: new Date(eventDate)
             }
           });
 
@@ -254,7 +261,7 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
             error: 'Bad Request',
             issues: error.issues,
           });
-          
+
           return;
         }
 

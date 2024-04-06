@@ -13,7 +13,8 @@ const seed = async () => {
         slug: generateSlug(`Evento ${evento}`),
         details: `Detalhes do evento ${evento}.`,
         maximumAttendees: evento * 5,
-        isActive: true
+        isActive: true,
+        eventDate: new Date('2024-04-24 18:00:00')
       }
     });
   }

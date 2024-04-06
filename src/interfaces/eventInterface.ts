@@ -3,6 +3,7 @@ export interface EventRequestBody {
   details?: string | null;
   maximumAttendees?: number | null;
   isActive: boolean;
+  eventDate: string;
 }
 
 export interface EventRequestParams {
