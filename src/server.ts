@@ -1,21 +1,15 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
-import {
-  jsonSchemaTransform,
-  serializerCompiler,
-  validatorCompiler
-} from 'fastify-type-provider-zod';
+import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui';
 import fastifyCors from '@fastify/cors';
 
 import indexRoute from './routes/indexRoute';
-import generateCheckInId from './helpers/generateCheckInId';
+import { fastifySwaggerOptions, fastifySwaggerUiOptions } from './helpers/swaggerOptions';
 
 const port = process.env.PORT;
-
 const fastify = Fastify({ logger: true });
-
 let origin: string = '*';
 
 if (process.env.NODE_ENV === 'PROD') {
@@ -23,24 +17,8 @@ if (process.env.NODE_ENV === 'PROD') {
 }
 
 fastify.register(fastifyCors, { origin });
-
-fastify.register(fastifySwagger, {
-  swagger: {
-    consumes: ['application/json'],
-    produces: ['application/json'],
-    info: {
-      title: 'Pass-in',
-      description: 'Documentação da API Pass-in',
-      version: '1.0.0'
-    }
-  },
-  transform: jsonSchemaTransform
-});
-
-fastify.register(fastifySwaggerUi, {
-  routePrefix: '/docs'
-});
-
+fastify.register(fastifySwagger, fastifySwaggerOptions);
+fastify.register(fastifySwaggerUi, fastifySwaggerUiOptions);
 fastify.setValidatorCompiler(validatorCompiler);
 fastify.setSerializerCompiler(serializerCompiler);
 
