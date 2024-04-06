@@ -19,7 +19,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
       {
         schema: {
           summary: 'Buscar informações do participante pelo id',
-          tags: ['attendee'],
+          tags: ['Participante'],
           params: z.object({
             attendeeId: z.coerce
               .number({
@@ -126,7 +126,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
       {
         schema: {
           summary: 'Fazer check-in do participante pelo id',
-          tags: ['check-in'],
+          tags: ['Check-in'],
           params: z.object({
             attendeeId: z.coerce
               .number({
@@ -222,7 +222,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
       {
         schema: {
           summary: 'Registrar participante pelo id do evento',
-          tags: ['attendee'],
+          tags: ['Participante'],
           body: z
             .object({
               name: z
