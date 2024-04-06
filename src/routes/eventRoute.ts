@@ -114,7 +114,7 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
                   email: z.string().email(),
                   createdAt: z.date(),
                   eventId: z.string().uuid(),
-                  checkInAt: z.date().nullable()
+                  checkInAt: z.date().nullish()
                 })
               )
             })

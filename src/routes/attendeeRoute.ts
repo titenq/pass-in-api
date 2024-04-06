@@ -40,7 +40,8 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
               name: z.string().min(4),
               email: z.string().email(),
               eventTitle: z.string().min(4),
-              checkInURL: z.string().url()
+              checkInURL: z.string().url(),
+              eventDate: z.date()
             })
           }
         }
@@ -59,7 +60,8 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
               email: true,
               event: {
                 select: {
-                  title: true
+                  title: true,
+                  eventDate: true
                 }
               }
             },
@@ -83,6 +85,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
           const attendeeReply = {
             ...rest,
             eventTitle: event.title,
+            eventDate: event.eventDate,
             checkInURL
           };
 

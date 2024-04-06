@@ -9,7 +9,7 @@ import indexRoute from './routes/indexRoute';
 import { fastifySwaggerOptions, fastifySwaggerUiOptions } from './helpers/swaggerOptions';
 
 const port = process.env.PORT;
-const fastify = Fastify({ logger: true });
+const fastify = Fastify();
 let origin: string = '*';
 
 if (process.env.NODE_ENV === 'PROD') {
