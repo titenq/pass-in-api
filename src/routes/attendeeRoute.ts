@@ -236,14 +236,16 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
                 .max(64, {
                   message: 'O campo nome dever ter no máximo 64 caracteres',
                 }),
-              email: z.string().email(),
+              email: z.string().email({
+                message: 'Formato de e-mail inválido'
+              }),
             })
             .describe(
               'name: string, mínimo 4 caracteres, máximo 64 caracteres\nemail: string',
             ),
           params: z.object({
             eventId: z.string().uuid({
-              message: 'UUID inválida',
+              message: 'UUID inválido',
             }),
           }),
           response: {
