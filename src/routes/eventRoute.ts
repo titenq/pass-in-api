@@ -132,7 +132,8 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
                 message: 'O parâmetro limit deve ser um número inteiro',
               })
               .positive({
-                message: 'O parâmetro limit deve ser um número inteiro positivo',
+                message:
+                  'O parâmetro limit deve ser um número inteiro positivo',
               })
               .nullish()
               .default(10),
@@ -188,14 +189,14 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
               },
               where: query
                 ? {
-                    eventId,
-                    name: {
-                      contains: query,
-                    },
-                  }
-                : {
-                    eventId,
+                  eventId,
+                  name: {
+                    contains: query,
                   },
+                }
+                : {
+                  eventId,
+                },
               take: limit,
               skip: (page - 1) * limit,
               orderBy: {
@@ -203,9 +204,16 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
               },
             }),
             prisma.attendee.count({
-              where: {
-                eventId,
-              },
+              where: query ? 
+                {
+                  eventId,
+                  name: {
+                    contains: query,
+                  },
+                }
+                : {
+                  eventId,
+                },
             }),
           ]);
 
@@ -266,9 +274,11 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
                 .max(64, {
                   message: 'O campo title deve ter no máximo 64 caracteres',
                 }),
-              details: z.string({
-                invalid_type_error: 'O campo details deve ser um texto'
-              }).nullable(),
+              details: z
+                .string({
+                  invalid_type_error: 'O campo details deve ser um texto',
+                })
+                .nullable(),
               maximumAttendees: z
                 .number({
                   required_error: 'O campo maximumAttendees é obrigatório',
@@ -286,7 +296,7 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
                 .nullable(),
               isActive: z.boolean({
                 required_error: 'O campo isActive é obrigatório',
-                invalid_type_error: 'O campo isActive deve ser um boolean'
+                invalid_type_error: 'O campo isActive deve ser um boolean',
               }),
               eventDate: z.string().datetime({
                 message:
