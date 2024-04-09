@@ -146,6 +146,7 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
             200: z.object({
               currentPage: z.number().int().positive(),
               totalPages: z.number().int().positive(),
+              totalAttendees: z.number().int().positive().nullish().default(0),
               attendees: z.array(
                 z.object({
                   id: z.number().int().positive(),
@@ -222,6 +223,7 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
           return reply.status(200).send({
             currentPage: page,
             totalPages: Math.ceil(count / limit),
+            totalAttendees: count,
             attendees: attendeesMap,
           });
         } catch (error) {
