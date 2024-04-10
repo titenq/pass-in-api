@@ -8,8 +8,8 @@ import {
   AttendeeRequestBody,
   AttendeeRequestParams,
 } from '../interfaces/attendeeInterface';
-import prisma from '../lib/prisma';
-import generateCheckInId from '../helpers/generateCheckInId';
+import attendeeService from '../services/attendeeService';
+import checkInService from '../services/checkInService';
 
 const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
   fastify
@@ -57,23 +57,9 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
       ) => {
         try {
           const { attendeeId, checkInId } = request.params;
-
-          const attendee = await prisma.attendee.findUnique({
-            select: {
-              checkInId: true,
-              name: true,
-              email: true,
-              event: {
-                select: {
-                  title: true,
-                  eventDate: true,
-                },
-              },
-            },
-            where: {
-              id: attendeeId,
-              checkInId,
-            },
+          const attendee = await attendeeService.getAttendeeBadge({
+            attendeeId,
+            checkInId,
           });
 
           if (!attendee) {
@@ -86,7 +72,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
           const hostname = request.hostname;
           const baseURL = `${protocol}://${hostname}`;
           const checkInURL = new URL(
-            `attendees/${attendeeId}/check-in/${attendee.checkInId}`,
+            `attendees/${attendeeId}/check-in/${checkInId}`,
             baseURL,
           ).toString();
 
@@ -162,12 +148,9 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
       ) => {
         try {
           const { attendeeId, checkInId } = request.params;
-
-          const attendee = await prisma.attendee.findUnique({
-            where: {
-              id: attendeeId,
-              checkInId,
-            },
+          const attendee = await attendeeService.getAttendeeCheckIn({
+            attendeeId,
+            checkInId,
           });
 
           if (!attendee) {
@@ -176,11 +159,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
               .send({ error: 'Id e checkInId do participante não conferem.' });
           }
 
-          const attendeeCheckIn = await prisma.checkIn.findUnique({
-            where: {
-              attendeeId,
-            },
-          });
+          const attendeeCheckIn = await checkInService.getCheckIn(attendeeId);
 
           if (attendeeCheckIn) {
             return reply.status(409).send({
@@ -188,11 +167,9 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
             });
           }
 
-          const checkIn = await prisma.checkIn.create({
-            data: {
-              attendeeId,
-              checkInId,
-            },
+          const checkIn = await checkInService.createCheckIn({
+            attendeeId,
+            checkInId,
           });
 
           return reply.status(201).send(checkIn);
@@ -237,7 +214,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
                   message: 'O campo nome dever ter no máximo 64 caracteres',
                 }),
               email: z.string().email({
-                message: 'Formato de e-mail inválido'
+                message: 'Formato de e-mail inválido',
               }),
             })
             .describe(
@@ -266,14 +243,10 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
           const { eventId } = request.params;
           const { name, email } = request.body;
 
-          const attendeeEmailEventId = await prisma.attendee.findUnique({
-            where: {
-              eventId_email: {
-                email,
-                eventId,
-              },
-            },
-          });
+          const attendeeEmailEventId = await attendeeService.getAttendeeByEmail(
+            email,
+            eventId,
+          );
 
           if (attendeeEmailEventId) {
             return reply.status(409).send({
@@ -281,18 +254,8 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
             });
           }
 
-          const [event, countAttendeesInEvent] = await Promise.all([
-            prisma.event.findUnique({
-              where: {
-                id: eventId,
-              },
-            }),
-            prisma.attendee.count({
-              where: {
-                eventId,
-              },
-            }),
-          ]);
+          const { event, countAttendeesInEvent } =
+            await attendeeService.getEventAndAttendees(eventId);
 
           if (!event) {
             return reply.status(404).send({
@@ -300,7 +263,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
             });
           }
 
-          if (!event?.isActive) {
+          if (!event.isActive) {
             return reply.status(409).send({
               error: 'O evento está inativo.',
             });
@@ -315,14 +278,7 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
             });
           }
 
-          const attendee: AttendeeModel = await prisma.attendee.create({
-            data: {
-              checkInId: generateCheckInId(),
-              name,
-              email,
-              eventId,
-            },
-          });
+          const attendee: AttendeeModel = await attendeeService.createAttendee(name, email, eventId);
 
           return reply.status(201).send({ attendeeId: attendee.id });
         } catch (error) {

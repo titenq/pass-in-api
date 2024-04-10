@@ -10,6 +10,7 @@ import {
   EventRequestQuery,
 } from '../interfaces/eventInterface';
 import prisma from '../lib/prisma';
+import eventService from '../services/eventService';
 
 const eventRoute = async (fastify: FastifyInstance, options: any) => {
   fastify
@@ -46,25 +47,7 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
         try {
           const { eventId } = request.params;
 
-          const event = await prisma.event.findUnique({
-            select: {
-              id: true,
-              title: true,
-              details: true,
-              maximumAttendees: true,
-              isActive: true,
-              slug: true,
-              createdAt: true,
-              _count: {
-                select: {
-                  attendees: true,
-                },
-              },
-            },
-            where: {
-              id: eventId,
-            },
-          });
+          const event = await eventService.getEventById(eventId);
 
           if (!event) {
             return reply.status(404).send({ error: 'Evento não encontrado.' });
@@ -173,49 +156,7 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
           const { eventId } = request.params;
           const { page, limit, query } = request.query;
 
-          const [attendees, count] = await prisma.$transaction([
-            prisma.attendee.findMany({
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                createdAt: true,
-                eventId: true,
-                checkIn: {
-                  select: {
-                    createdAt: true,
-                  },
-                },
-              },
-              where: query
-                ? {
-                  eventId,
-                  name: {
-                    contains: query,
-                  },
-                }
-                : {
-                  eventId,
-                },
-              take: limit,
-              skip: (page - 1) * limit,
-              orderBy: {
-                createdAt: 'desc',
-              },
-            }),
-            prisma.attendee.count({
-              where: query ? 
-                {
-                  eventId,
-                  name: {
-                    contains: query,
-                  },
-                }
-                : {
-                  eventId,
-                },
-            }),
-          ]);
+          const { attendees, count } = await eventService.getAttendeesByEvent(eventId, page, limit, query);
 
           const attendeesMap = attendees.map(attendee => {
             const { checkIn, ...rest } = attendee;
@@ -321,27 +262,17 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
           const { title, details, maximumAttendees, isActive, eventDate } =
             request.body;
 
-          console.log(eventDate);
-
           const slug = generateSlug(title);
-          const isSlug = await prisma.event.findUnique({ where: { slug } });
+
+          const isSlug = await eventService.getIsSlug(slug);
 
           if (isSlug) {
             return reply
               .status(409)
-              .send({ error: 'Another event with same title exists.' });
+              .send({ error: 'Já existe um evento com esse título' });
           }
 
-          const event: EventModel = await prisma.event.create({
-            data: {
-              title,
-              details,
-              maximumAttendees,
-              slug,
-              isActive,
-              eventDate: new Date(eventDate),
-            },
-          });
+          const event: EventModel = await eventService.createEvent(title, slug, isActive, eventDate, details!, maximumAttendees!);
 
           return reply.status(201).send({ eventId: event.id });
         } catch (error) {
