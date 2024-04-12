@@ -15,6 +15,7 @@ import {
   getAttendeeByEmailSchema,
   getAttendeeCheckInSchema
 } from '../schemas/attendeeSchema';
+import errorHandler from '../helpers/errorHandler';
 
 const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
   fastify.withTypeProvider<ZodTypeProvider>()
@@ -58,23 +59,10 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
         } catch (error) {
           console.error(error);
 
-          return reply.status(501).send(error);
+          errorHandler(error, request, reply);
         }
       },
-    )
-    .setErrorHandler((error, request, reply) => {
-      if (error instanceof ZodError) {
-        reply.status(400).send({
-          statusCode: 400,
-          error: 'Bad Request',
-          issues: error.issues,
-        });
-
-        return;
-      }
-
-      reply.send(error);
-    });
+    );
 
   fastify.withTypeProvider<ZodTypeProvider>()
     .get('/attendees/:attendeeId/check-in/:checkInId',
@@ -113,23 +101,10 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
         } catch (error) {
           console.error(error);
 
-          return reply.status(501).send(error);
+          errorHandler(error, request, reply);
         }
       },
-    )
-    .setErrorHandler((error, request, reply) => {
-      if (error instanceof ZodError) {
-        reply.status(400).send({
-          statusCode: 400,
-          error: 'Bad Request',
-          issues: error.issues,
-        });
-
-        return;
-      }
-
-      reply.send(error);
-    });
+    );
 
   fastify.withTypeProvider<ZodTypeProvider>()
     .post('/events/:eventId/attendees',
@@ -192,23 +167,10 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
         } catch (error) {
           console.error(error);
 
-          return reply.status(501).send(error);
+          errorHandler(error, request, reply);
         }
       },
-    )
-    .setErrorHandler((error, request, reply) => {
-      if (error instanceof ZodError) {
-        reply.status(400).send({
-          statusCode: 400,
-          error: 'Bad Request',
-          issues: error.issues,
-        });
-
-        return;
-      }
-
-      reply.send(error);
-    });
+    );
 };
 
 export default attendeeRoute;

@@ -7,6 +7,7 @@ import fastifyCors from '@fastify/cors';
 
 import indexRoute from './routes/indexRoute';
 import { fastifySwaggerOptions, fastifySwaggerUiOptions } from './helpers/swaggerOptions';
+import errorHandler from './helpers/errorHandler';
 
 const port = process.env.PORT;
 const fastify = Fastify();
@@ -21,6 +22,8 @@ fastify.register(fastifySwagger, fastifySwaggerOptions);
 fastify.register(fastifySwaggerUi, fastifySwaggerUiOptions);
 fastify.setValidatorCompiler(validatorCompiler);
 fastify.setSerializerCompiler(serializerCompiler);
+
+fastify.setErrorHandler(errorHandler);
 
 const startServer = async () => {
   await indexRoute(fastify);

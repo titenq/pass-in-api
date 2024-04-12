@@ -15,6 +15,7 @@ import {
   getAttendeesByEventSchema,
   getEventByIdSchema
 } from '../schemas/eventSchema';
+import errorHandler from '../helpers/errorHandler';
 
 const eventRoute = async (fastify: FastifyInstance, options: any) => {
   fastify.withTypeProvider<ZodTypeProvider>()
@@ -42,23 +43,10 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
         } catch (error) {
           console.error(error);
 
-          return reply.status(501).send(error);
+          errorHandler(error, request, reply);
         }
       },
-    )
-    .setErrorHandler((error, request, reply) => {
-      if (error instanceof ZodError) {
-        reply.status(400).send({
-          statusCode: 400,
-          error: 'Bad Request',
-          issues: error.issues,
-        });
-
-        return;
-      }
-
-      reply.send(error);
-    });
+    );
 
   fastify.withTypeProvider<ZodTypeProvider>()
     .get('/events/:eventId/attendees',
@@ -77,6 +65,15 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
             attendees,
             count
           } = await eventService.getAttendeesByEvent(eventId, page, limit, query);
+
+          const isEvent = await eventService.getEventById(eventId);
+
+          if (!isEvent) {
+            return reply.status(404).send({
+              error: 'Não existe evento com esse ID'
+            });
+          }
+
           const attendeesMap = attendees.map(attendee => {
             const { checkIn, ...rest } = attendee;
             const attendeesReply = {
@@ -96,23 +93,10 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
         } catch (error) {
           console.error(error);
 
-          return reply.status(501).send(error);
+          errorHandler(error, request, reply);
         }
       },
-    )
-    .setErrorHandler((error, request, reply) => {
-      if (error instanceof ZodError) {
-        reply.status(400).send({
-          statusCode: 400,
-          error: 'Bad Request',
-          issues: error.issues,
-        });
-
-        return;
-      }
-
-      reply.send(error);
-    });
+    );
 
   fastify.withTypeProvider<ZodTypeProvider>()
     .post('/events',
@@ -153,23 +137,10 @@ const eventRoute = async (fastify: FastifyInstance, options: any) => {
         } catch (error) {
           console.error(error);
 
-          return reply.status(501).send(error);
+          errorHandler(error, request, reply);
         }
       },
-    )
-    .setErrorHandler((error, request, reply) => {
-      if (error instanceof ZodError) {
-        reply.status(400).send({
-          statusCode: 400,
-          error: 'Bad Request',
-          issues: error.issues,
-        });
-
-        return;
-      }
-
-      reply.send(error);
-    });
+    );
 };
 
 export default eventRoute;
