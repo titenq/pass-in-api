@@ -30,7 +30,8 @@ const startServer = async () => {
 try {
   startServer();
 
-  console.log(`API started in http://localhost:${port}`);
+  console.log(`API started in http://localhost:${port}
+API Doc: http://localhost:${port}/docs`);
 } catch (err) {
   fastify.log.error(err);
 

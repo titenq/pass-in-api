@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { z, ZodError } from 'zod';
+import { ZodError } from 'zod';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
 
 import AttendeeModel from '../models/attendeeModel';
@@ -10,47 +10,16 @@ import {
 } from '../interfaces/attendeeInterface';
 import attendeeService from '../services/attendeeService';
 import checkInService from '../services/checkInService';
+import {
+  getAttendeeBadgeSchema,
+  getAttendeeByEmailSchema,
+  getAttendeeCheckInSchema
+} from '../schemas/attendeeSchema';
 
 const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
-  fastify
-    .withTypeProvider<ZodTypeProvider>()
-    .get(
-      '/attendees/:attendeeId/badge/:checkInId',
-      {
-        schema: {
-          summary: 'Buscar informações do participante pelo id',
-          tags: ['Participante'],
-          params: z.object({
-            attendeeId: z.coerce
-              .number({
-                required_error: 'O parâmetro attendeeId é obrigatório',
-                invalid_type_error:
-                  'O parâmetro attendeeId deve ser um número inteiro positivo',
-              })
-              .int({
-                message: 'O parâmetro attendeeId deve ser um número inteiro',
-              })
-              .positive({
-                message:
-                  'O parâmetro attendeeId deve ser um número inteiro positivo',
-              }),
-            checkInId: z.string({
-              required_error: 'O parâmetro checkInId é obrigatório',
-              invalid_type_error: 'O parâmetro checkInId deve ser um texto',
-            }),
-          }),
-          response: {
-            200: z.object({
-              checkInId: z.string(),
-              name: z.string().min(4),
-              email: z.string().email(),
-              eventTitle: z.string().min(4),
-              checkInURL: z.string().url(),
-              eventDate: z.date(),
-            }),
-          },
-        },
-      },
+  fastify.withTypeProvider<ZodTypeProvider>()
+    .get('/attendees/:attendeeId/badge/:checkInId',
+      { schema: getAttendeeBadgeSchema },
       async (
         request: FastifyRequest<{ Params: AttendeeBadgeRequestParams }>,
         reply: FastifyReply,
@@ -63,9 +32,9 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
           });
 
           if (!attendee) {
-            return reply
-              .status(404)
-              .send({ error: 'Participante não encontrado.' });
+            return reply.status(404).send({
+              error: 'Participante não encontrado.'
+            });
           }
 
           const protocol = request.protocol;
@@ -87,7 +56,9 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
 
           return reply.status(200).send(attendeeReply);
         } catch (error) {
-          console.log('error: ', error);
+          console.error(error);
+
+          return reply.status(501).send(error);
         }
       },
     )
@@ -105,43 +76,9 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
       reply.send(error);
     });
 
-  fastify
-    .withTypeProvider<ZodTypeProvider>()
-    .get(
-      '/attendees/:attendeeId/check-in/:checkInId',
-      {
-        schema: {
-          summary: 'Fazer check-in do participante pelo id',
-          tags: ['Check-in'],
-          params: z.object({
-            attendeeId: z.coerce
-              .number({
-                required_error: 'O parâmetro attendeeId é obrigatório',
-                invalid_type_error:
-                  'O parâmetro attendeeId deve ser um número inteiro positivo',
-              })
-              .int({
-                message: 'O parâmetro attendeeId deve ser um número inteiro',
-              })
-              .positive({
-                message:
-                  'O parâmetro attendeeId deve ser um número inteiro positivo',
-              }),
-            checkInId: z.string({
-              required_error: 'O parâmetro checkInId é obrigatório',
-              invalid_type_error: 'O parâmetro checkInId deve ser um texto',
-            }),
-          }),
-          response: {
-            201: z.object({
-              id: z.number().int().positive(),
-              createdAt: z.date(),
-              attendeeId: z.number().int().positive(),
-              checkInId: z.string(),
-            }),
-          },
-        },
-      },
+  fastify.withTypeProvider<ZodTypeProvider>()
+    .get('/attendees/:attendeeId/check-in/:checkInId',
+      { schema: getAttendeeCheckInSchema },
       async (
         request: FastifyRequest<{ Params: AttendeeBadgeRequestParams }>,
         reply: FastifyReply,
@@ -154,9 +91,9 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
           });
 
           if (!attendee) {
-            return reply
-              .status(409)
-              .send({ error: 'Id e checkInId do participante não conferem.' });
+            return reply.status(409).send({
+              error: 'Id e checkInId do participante não conferem.'
+            });
           }
 
           const attendeeCheckIn = await checkInService.getCheckIn(attendeeId);
@@ -174,7 +111,9 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
 
           return reply.status(201).send(checkIn);
         } catch (error) {
-          console.log('error: ', error);
+          console.error(error);
+
+          return reply.status(501).send(error);
         }
       },
     )
@@ -192,45 +131,10 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
       reply.send(error);
     });
 
-  fastify
-    .withTypeProvider<ZodTypeProvider>()
-    .post(
-      '/events/:eventId/attendees',
+  fastify.withTypeProvider<ZodTypeProvider>()
+    .post('/events/:eventId/attendees',
       {
-        schema: {
-          summary: 'Registrar participante pelo id do evento',
-          tags: ['Participante'],
-          body: z
-            .object({
-              name: z
-                .string({
-                  invalid_type_error: 'O campo nome deve ser um texto',
-                  required_error: 'O campo nome é obrigatório',
-                })
-                .min(4, {
-                  message: 'O campo nome deve ter no mínimo 4 caracteres',
-                })
-                .max(64, {
-                  message: 'O campo nome dever ter no máximo 64 caracteres',
-                }),
-              email: z.string().email({
-                message: 'Formato de e-mail inválido',
-              }),
-            })
-            .describe(
-              'name: string, mínimo 4 caracteres, máximo 64 caracteres\nemail: string',
-            ),
-          params: z.object({
-            eventId: z.string().uuid({
-              message: 'UUID inválido',
-            }),
-          }),
-          response: {
-            201: z.object({
-              attendeeId: z.number().int().positive(),
-            }),
-          },
-        },
+        schema: getAttendeeByEmailSchema
       },
       async (
         request: FastifyRequest<{
@@ -278,7 +182,11 @@ const attendeeRoute = async (fastify: FastifyInstance, options: any) => {
             });
           }
 
-          const attendee: AttendeeModel = await attendeeService.createAttendee(name, email, eventId);
+          const attendee: AttendeeModel = await attendeeService.createAttendee(
+            name,
+            email,
+            eventId
+          );
 
           return reply.status(201).send({ attendeeId: attendee.id });
         } catch (error) {
