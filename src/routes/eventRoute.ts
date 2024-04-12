@@ -1,5 +1,4 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { ZodError } from 'zod';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
 
 import generateSlug from '../helpers/generateSlug';
