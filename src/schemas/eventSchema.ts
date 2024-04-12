@@ -72,12 +72,19 @@ const getEventByIdSchema = {
     200: z.object({
       id: z.string().uuid(),
       title: z.string(),
-      details: z.string().nullable(),
-      maximumAttendees: z.number().int().positive().nullable(),
+      details: z.string().nullish(),
+      maximumAttendees: z.number().int().positive().nullish(),
       isActive: z.boolean(),
       slug: z.string(),
       createdAt: z.date(),
-      attendeesAmount: z.number().int().positive().nullable(),
+      attendeesAmount: z.number({
+        invalid_type_error: 'attendeesAmount deve ser um número',
+      }).int({
+        message: 'attendeesAmount deve ser um número inteiro'
+      }).positive({
+        message: 'attendeesAmount deve ser um número positivo'
+      }).default(0),
+      eventDate: z.date()
     }),
   }
 };

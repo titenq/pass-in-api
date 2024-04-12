@@ -12,6 +12,7 @@ const eventService = {
         isActive: true,
         slug: true,
         createdAt: true,
+        eventDate: true,
         _count: {
           select: {
             attendees: true,
