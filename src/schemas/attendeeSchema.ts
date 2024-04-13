@@ -1,76 +1,38 @@
 import { z } from 'zod';
 
+import genError, { Required, Type } from '../helpers/genError';
+
 const getAttendeeBadgeSchema = {
   summary: 'Buscar informações do participante pelo id',
   tags: ['Participante'],
   params: z.object({
     attendeeId: z.coerce
-      .number({
-        required_error: 'O parâmetro attendeeId é obrigatório',
-        invalid_type_error: 'O parâmetro attendeeId deve ser um número inteiro positivo',
-      })
-      .int({
-        message: 'O parâmetro attendeeId deve ser um número inteiro',
-      })
-      .positive({
-        message: 'O parâmetro attendeeId deve ser um número inteiro positivo',
-      }),
+      .number(genError('attendeeId', Type.NUMBER, Required.TRUE))
+      .int(genError('attendeeId', Type.INT, Required.NULL))
+      .positive(genError('attendeeId', Type.POSITIVE, Required.NULL)),
     checkInId: z
-      .string({
-        required_error: 'O parâmetro checkInId é obrigatório',
-        invalid_type_error: 'O parâmetro checkInId deve ser um texto',
-      }),
+      .string(genError('checkInId', Type.STRING, Required.TRUE)),
   }),
   response: {
     200: z.object({
       checkInId: z
-        .string({
-          required_error: 'checkInId é obrigatório',
-          invalid_type_error: 'checkInId deve ser um texto',
-        }),
+        .string(genError('checkInId', Type.STRING, Required.TRUE)),
       name: z
-        .string({
-          required_error: 'name é obrigatório',
-          invalid_type_error: 'name deve ser um texto',
-        })
-        .min(4, {
-          message: 'name deve ter no mínimo 4 caracteres'
-        })
-        .max(64, {
-          message: 'name deve ter no máximo 64 caracteres'
-        }),
+        .string(genError('name', Type.STRING, Required.TRUE))
+        .min(4, genError('name', Type.MIN, Required.NULL, '4'))
+        .max(64, genError('name', Type.MAX, Required.NULL, '64')),
       email: z
-        .string({
-          required_error: 'email é obrigatório',
-          invalid_type_error: 'email deve ser um texto',
-        })
-        .email({
-          message: 'Formato de e-mail inválido'
-        }),
+        .string(genError('email', Type.STRING, Required.TRUE))
+        .email(genError('email', Type.EMAIL, Required.NULL)),
       eventTitle: z
-        .string({
-          required_error: 'eventTitle é obrigatório',
-          invalid_type_error: 'eventTitle deve ser um texto',
-        })
-        .min(4, {
-          message: 'eventTitle deve ter no mínimo 4 caracteres'
-        })
-        .max(64, {
-          message: 'eventTitle deve ter no máximo 64 caracteres'
-        }),
+        .string(genError('eventTitle', Type.STRING, Required.TRUE))
+        .min(4, genError('eventTitle', Type.MIN, Required.NULL, '4'))
+        .max(64, genError('eventTitle', Type.MAX, Required.NULL, '64')),
       checkInURL: z
-        .string({
-          required_error: 'checkInURL é obrigatório',
-          invalid_type_error: 'checkInURL deve ser um texto',
-        })
-        .url({
-          message: 'Formato de URL inválido'
-        }),
+        .string(genError('checkInURL', Type.STRING, Required.TRUE))
+        .url(genError('checkInURL', Type.URL, Required.NULL)),
       eventDate: z
-        .date({
-          required_error: 'eventDate é obrigatório',
-          invalid_type_error: 'eventDate com formato inválido'
-        }),
+        .date(genError('eventDate', Type.DATE, Required.TRUE)),
     }),
   }
 };
@@ -80,56 +42,26 @@ const getAttendeeCheckInSchema = {
   tags: ['Check-in'],
   params: z.object({
     attendeeId: z.coerce
-      .number({
-        required_error: 'O parâmetro attendeeId é obrigatório',
-        invalid_type_error: 'O parâmetro attendeeId deve ser um número inteiro positivo',
-      })
-      .int({
-        message: 'O parâmetro attendeeId deve ser um número inteiro',
-      })
-      .positive({
-        message: 'O parâmetro attendeeId deve ser um número inteiro positivo',
-      }),
+      .number(genError('attendeeId', Type.NUMBER, Required.TRUE))
+      .int(genError('attendeeId', Type.INT, Required.NULL))
+      .positive(genError('attendeeId', Type.POSITIVE, Required.NULL)),
     checkInId: z
-      .string({
-        required_error: 'O parâmetro checkInId é obrigatório',
-        invalid_type_error: 'O parâmetro checkInId deve ser um texto',
-      }),
+      .string(genError('checkInId', Type.STRING, Required.TRUE)),
   }),
   response: {
     201: z.object({
       id: z
-        .number({
-          required_error: 'id é obrigatório',
-          invalid_type_error: 'id deve ser um número'
-        })
-        .int({
-          message: 'id deve ser um número inteiro'
-        })
-        .positive({
-          message: 'id deve ser um número positivo'
-        }),
+        .number(genError('id', Type.NUMBER, Required.TRUE))
+        .int(genError('id', Type.INT, Required.NULL))
+        .positive(genError('id', Type.POSITIVE, Required.NULL)),
       createdAt: z
-        .date({
-          required_error: 'createdAt é obrigatório',
-          invalid_type_error: 'createdAt com formato inválido'
-        }),
+        .date(genError('createdAt', Type.DATE, Required.TRUE)),
       attendeeId: z
-        .number({
-          required_error: 'attendeeId é obrigatório',
-          invalid_type_error: 'attendeeId deve ser um número'
-        })
-        .int({
-          message: 'attendeeId deve ser um número inteiro'
-        })
-        .positive({
-          message: 'attendeeId deve ser um número positivo'
-        }),
+        .number(genError('attendeeId', Type.NUMBER, Required.TRUE))
+        .int(genError('attendeeId', Type.INT, Required.NULL))
+        .positive(genError('attendeeId', Type.POSITIVE, Required.NULL)),
       checkInId: z
-        .string({
-          required_error: 'checkInId é obrigatório',
-          invalid_type_error: 'checkInId deve ser um texto',
-        }),
+        .string(genError('checkInId', Type.STRING, Required.TRUE)),
     }),
   }
 };
@@ -140,51 +72,27 @@ const getAttendeeByEmailSchema = {
   body: z
     .object({
       name: z
-        .string({
-          invalid_type_error: 'O campo nome deve ser um texto',
-          required_error: 'O campo nome é obrigatório',
-        })
-        .min(4, {
-          message: 'O campo nome deve ter no mínimo 4 caracteres',
-        })
-        .max(64, {
-          message: 'O campo nome dever ter no máximo 64 caracteres',
-        }),
+        .string(genError('name', Type.STRING, Required.TRUE))
+        .min(4, genError('name', Type.MIN, Required.NULL, '4'))
+        .max(64, genError('name', Type.MAX, Required.NULL, '64')),
       email: z
-        .string({
-          invalid_type_error: 'O campo email deve ser um texto',
-          required_error: 'O campo email é obrigatório',
-        })
-        .email({
-          message: 'Formato de e-mail inválido',
-        }),
+        .string(genError('email', Type.STRING, Required.TRUE))
+        .email(genError('email', Type.EMAIL, Required.NULL)),
     })
     .describe(
       'name: string, mínimo 4 caracteres, máximo 64 caracteres\nemail: string',
     ),
   params: z.object({
     eventId: z
-      .string({
-        invalid_type_error: 'O campo eventId deve ser um texto',
-        required_error: 'O campo eventId é obrigatório',
-      })
-      .uuid({
-        message: 'UUID inválido',
-      }),
+      .string(genError('eventId', Type.STRING, Required.TRUE))
+      .uuid(genError('eventId', Type.UUID, Required.NULL)),
   }),
   response: {
     201: z.object({
       attendeeId: z
-        .number({
-          invalid_type_error: 'attendeeId deve ser um número',
-          required_error: 'attendeeId é obrigatório',
-        })
-        .int({
-          message: 'attendeeId deve ser um número inteiro'
-        })
-        .positive({
-          message: 'attendeeId deve ser um número positivo'
-        }),
+        .number(genError('attendeeId', Type.NUMBER, Required.TRUE))
+        .int(genError('attendeeId', Type.INT, Required.NULL))
+        .positive(genError('attendeeId', Type.POSITIVE, Required.NULL)),
     }),
   }
 };

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import genError, { Required, Type } from '../helpers/genError';
 
 const getAttendeesByEventSchema = {
@@ -12,115 +13,56 @@ const getAttendeesByEventSchema = {
   querystring: z.object({
     page: z.coerce
       .number(genError('page', Type.NUMBER, Required.FALSE))
-      .int({
-        message: 'O parâmetro page deve ser um número inteiro',
-      })
-      .positive({
-        message: 'O parâmetro page deve ser um número inteiro positivo',
-      })
+      .int(genError('page', Type.INT, Required.NULL))
+      .positive(genError('page', Type.POSITIVE, Required.NULL))
       .nullish()
       .default(1),
     limit: z.coerce
-      .number({
-        invalid_type_error: 'O parâmetro limit deve ser um número inteiro positivo',
-      })
-      .int({
-        message: 'O parâmetro limit deve ser um número inteiro',
-      })
-      .positive({
-        message: 'O parâmetro limit deve ser um número inteiro positivo',
-      })
+      .number(genError('limit', Type.NUMBER, Required.FALSE))
+      .int(genError('limit', Type.INT, Required.NULL))
+      .positive(genError('limit', Type.POSITIVE, Required.NULL))
       .nullish()
       .default(10),
-    query: z.string({
-      invalid_type_error: 'O parâmetro query deve ser um texto',
-    })
+    query: z
+      .string(genError('query', Type.STRING, Required.FALSE))
       .nullish(),
   }),
   response: {
     200: z.object({
       currentPage: z
-        .number({
-          required_error: 'currentPage é obrigatório',
-          invalid_type_error: 'currentPage deve ser um número inteiro positivo'
-        })
-        .int({
-          message: 'currentPage deve ser um número inteiro'
-        })
-        .positive({
-          message: 'currentPage deve ser um número inteiro positivo'
-        }),
+        .number(genError('currentPage', Type.NUMBER, Required.TRUE))
+        .int(genError('currentPage', Type.INT, Required.NULL))
+        .positive(genError('currentPage', Type.POSITIVE, Required.NULL)),
       totalPages: z
-        .number({
-          invalid_type_error: 'totalPages deve ser um número inteiro positivo'
-        })
-        .int({
-          message: 'totalPages deve ser um número inteiro'
-        })
-        .positive({
-          message: 'totalPages deve ser um número inteiro positivo'
-        }),
+        .number(genError('totalPages', Type.NUMBER, Required.TRUE))
+        .int(genError('totalPages', Type.INT, Required.NULL))
+        .positive(genError('totalPages', Type.POSITIVE, Required.NULL)),
       totalAttendees: z
-        .number({
-          invalid_type_error: 'totalAttendees deve ser um número inteiro não negativo'
-        })
-        .int({
-          message: 'totalAttendees deve ser um número inteiro'
-        })
-        .nonnegative({
-          message: 'totalAttendees não pode ser um número negativo'
-        })
+        .number(genError('totalAttendees', Type.NUMBER, Required.FALSE))
+        .int(genError('totalAttendees', Type.INT, Required.NULL))
+        .nonnegative(genError('totalAttendees', Type.NONNEGATIVE, Required.NULL))
         .nullish()
         .default(0),
       attendees: z.array(
         z.object({
           id: z
-            .number({
-              required_error: 'id é obrigatório',
-              invalid_type_error: 'id deve ser um número inteiro positivo'
-            })
-            .int({
-              message: 'id deve ser um número inteiro'
-            })
-            .positive({
-              message: 'id deve ser um número positivo'
-            }),
+            .number(genError('attendees', Type.NUMBER, Required.TRUE))
+            .int(genError('attendees', Type.INT, Required.NULL))
+            .positive(genError('attendees', Type.POSITIVE, Required.NULL)),
           name: z
-            .string({
-              required_error: 'name é obrigatório',
-              invalid_type_error: 'name deve ser um texto'
-            })
-            .min(4, {
-              message: 'name deve ter no mínimo 4 caracteres'
-            })
-            .max(64, {
-              message: 'name deve ter no máximo 64 caracteres'
-            }),
+            .string(genError('name', Type.STRING, Required.TRUE))
+            .min(4, genError('name', Type.MIN, Required.NULL, '4'))
+            .max(64, genError('name', Type.MAX, Required.NULL, '64')),
           email: z
-            .string({
-              required_error: 'email é obrigatório',
-              invalid_type_error: 'email deve ser uma string'
-            })
-            .email({
-              message: 'Formato de e-mail inválido'
-            }),
+            .string(genError('email', Type.STRING, Required.TRUE))
+            .email(genError('email', Type.EMAIL, Required.NULL)),
           createdAt: z
-            .date({
-              required_error: 'createdAt é obrigatório',
-              invalid_type_error: 'createdAt com formato inválido'
-            }),
+            .date(genError('createdAt', Type.DATE, Required.TRUE)),
           eventId: z
-            .string({
-              required_error: 'eventId é obrigatório',
-              invalid_type_error: 'eventId deve ser um texto'
-            })
-            .uuid({
-              message: 'UUID inválido'
-            }),
+            .string(genError('eventId', Type.STRING, Required.TRUE))
+            .uuid(genError('eventId', Type.UUID, Required.NULL)),
           checkInAt: z
-            .date({
-              invalid_type_error: 'checkInAt com formato inválido'
-            })
+            .date(genError('checkInAt', Type.DATE, Required.FALSE))
             .nullish(),
         }),
       ),
@@ -133,76 +75,39 @@ const getEventByIdSchema = {
   tags: ['Eventos'],
   params: z.object({
     eventId: z
-      .string({
-        required_error: 'eventId é obrigatório',
-        invalid_type_error: 'eventId deve ser um texto'
-      })
-      .uuid({
-        message: 'UUID inválido',
-      }),
+      .string(genError('eventId', Type.STRING, Required.TRUE))
+      .uuid(genError('eventId', Type.UUID, Required.NULL)),
   }),
   response: {
     200: z.object({
       id: z
-        .string({
-          required_error: 'id é obrigatório',
-          invalid_type_error: 'id deve ser um texto'
-        })
-        .uuid({
-          message: 'UUID inválido',
-        }),
+        .string(genError('id', Type.STRING, Required.TRUE))
+        .uuid(genError('id', Type.UUID, Required.NULL)),
       title: z
-        .string({
-          required_error: 'title é obrigatório',
-          invalid_type_error: 'title deve ser um texto'
-        }),
+        .string(genError('title', Type.STRING, Required.TRUE))
+        .min(4, genError('title', Type.MIN, Required.NULL, '4'))
+        .max(64, genError('title', Type.MAX, Required.NULL, '64')),
       details: z
-        .string({
-          invalid_type_error: 'details deve ser um texto'
-        })
+        .string(genError('details', Type.STRING, Required.FALSE))
         .nullish(),
       maximumAttendees: z
-        .number({
-          invalid_type_error: 'maximumAttendees deve ser um número'
-        })
-        .int({
-          message: 'maximumAttendees deve ser um número inteiro'
-        })
-        .positive({
-          message: 'maximumAttendees deve ser um número inteiro positivo'
-        })
+        .number(genError('maximumAttendees', Type.NUMBER, Required.FALSE))
+        .int(genError('maximumAttendees', Type.INT, Required.NULL))
+        .positive(genError('maximumAttendees', Type.POSITIVE, Required.NULL))
         .nullish(),
       isActive: z
-        .boolean({
-          required_error: 'isActive é obrigatório',
-          invalid_type_error: 'isActive deve ser um booleano'
-        }),
+        .boolean(genError('isActive', Type.BOOLEAN, Required.TRUE)),
       slug: z
-        .string({
-          required_error: 'slug é obrigatório',
-          invalid_type_error: 'slug deve ser um texto'
-        }),
+        .string(genError('slug', Type.STRING, Required.TRUE)),
       createdAt: z
-        .date({
-          required_error: 'createdAt é obrigatório',
-          invalid_type_error: 'createdAt com formato inválido'
-        }),
+        .date(genError('createdAt', Type.DATE, Required.TRUE)),
       attendeesAmount: z
-        .number({
-          invalid_type_error: 'attendeesAmount deve ser um número',
-        })
-        .int({
-          message: 'attendeesAmount deve ser um número inteiro'
-        })
-        .nonnegative({
-          message: 'attendeesAmount não pode ser um número negativo'
-        })
+        .number(genError('attendeesAmount', Type.NUMBER, Required.FALSE))
+        .int(genError('attendeesAmount', Type.INT, Required.NULL))
+        .nonnegative(genError('attendeesAmount', Type.NONNEGATIVE, Required.NULL))
         .default(0),
       eventDate: z
-        .date({
-          required_error: 'eventDate é obrigatório',
-          invalid_type_error: 'eventDate com formato inválido'
-        })
+        .date(genError('eventDate', Type.DATE, Required.TRUE))
     }),
   }
 };
@@ -212,42 +117,21 @@ const createEventSchema = {
   tags: ['Eventos'],
   body: z.object({
     title: z
-      .string({
-        required_error: 'O campo title é obrigatório',
-        invalid_type_error: 'O campo title deve ser um texto',
-      })
-      .min(4, {
-        message: 'O campo title deve ter no mínimo 4 caracteres',
-      })
-      .max(64, {
-        message: 'O campo title deve ter no máximo 64 caracteres',
-      }),
+      .string(genError('title', Type.STRING, Required.TRUE))
+      .min(4, genError('title', Type.MIN, Required.NULL, '4'))
+      .max(64, genError('title', Type.MAX, Required.NULL, '64')),
     details: z
-      .string({
-        invalid_type_error: 'O campo details deve ser um texto',
-      })
+      .string(genError('details', Type.STRING, Required.FALSE))
       .nullish(),
     maximumAttendees: z
-      .number({
-        invalid_type_error: 'O campo maximumAttendees deve ser um número',
-      })
-      .int({
-        message: 'O campo maximumAttendees deve ser um número inteiro',
-      })
-      .positive({
-        message: 'O campo maximumAttendees deve ser um número inteiro positivo',
-      })
+      .number(genError('maximumAttendees', Type.NUMBER, Required.FALSE))
+      .int(genError('maximumAttendees', Type.INT, Required.NULL))
+      .positive(genError('maximumAttendees', Type.POSITIVE, Required.NULL))
       .nullish(),
     isActive: z
-      .boolean({
-        required_error: 'O campo isActive é obrigatório',
-        invalid_type_error: 'O campo isActive deve ser um boolean',
-      }),
+      .boolean(genError('isActive', Type.BOOLEAN, Required.TRUE)),
     eventDate: z
-      .date({
-        required_error: 'eventDate é obrigatório',
-        invalid_type_error: 'eventDate com formato inválido'
-      }),
+      .date(genError('eventDate', Type.DATE, Required.TRUE)),
   })
     .describe(
       'title: string, mínimo 4 caracteres, máximo 64 caracteres\ndetails: string, não obrigatório\nmaximumAttendees: número inteiro positivo, não obrigatório\nisActive: boolean\neventDate: string no formato 2024-04-18T22:30:00Z',
@@ -255,13 +139,8 @@ const createEventSchema = {
   response: {
     201: z.object({
       eventId: z
-        .string({
-          required_error: 'eventId é obrigatório',
-          invalid_type_error: 'eventId deve ser um texto',
-        })
-        .uuid({
-          message: 'UUID inválido'
-        }),
+        .string(genError('eventId', Type.STRING, Required.TRUE))
+        .uuid(genError('eventId', Type.UUID, Required.NULL)),
     }),
   }
 };
