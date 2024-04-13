@@ -1,23 +1,17 @@
 import { z } from 'zod';
+import genError, { Required, Type } from '../helpers/genError';
 
 const getAttendeesByEventSchema = {
   summary: 'Buscar participantes pelo id do evento',
   tags: ['Eventos'],
   params: z.object({
     eventId: z
-      .string({
-        required_error: 'eventId é obrigatório',
-        invalid_type_error: 'eventId deve ser um texto'
-      })
-      .uuid({
-        message: 'UUID inválido',
-      }),
+      .string(genError('eventId', Type.STRING, Required.TRUE))
+      .uuid(genError('eventId', Type.UUID, Required.NULL)),
   }),
   querystring: z.object({
     page: z.coerce
-      .number({
-        invalid_type_error: 'O parâmetro page deve ser um número inteiro positivo',
-      })
+      .number(genError('page', Type.NUMBER, Required.FALSE))
       .int({
         message: 'O parâmetro page deve ser um número inteiro',
       })
