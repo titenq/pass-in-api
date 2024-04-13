@@ -50,7 +50,7 @@ const getMessage = (field: string, type: Type, value?: string) => {
   };
 };
 
-const genError = (field: string, type: Type, required: Required, value?: string): ErrorMessage => {
+export const genMsgError = (field: string, type: Type, required: Required, value?: string): ErrorMessage => {
   if (required === Required.TRUE) {
     return getRequiredError(field, type);
   }
@@ -65,5 +65,3 @@ const genError = (field: string, type: Type, required: Required, value?: string)
   
   return getMessage(field, type);
 };
-
-export default genError;

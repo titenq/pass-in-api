@@ -1,68 +1,68 @@
 import { z } from 'zod';
 
-import genError, { Required, Type } from '../helpers/genError';
+import { genMsgError, Required, Type } from '../helpers/genMsgError';
 
 const getAttendeesByEventSchema = {
   summary: 'Buscar participantes pelo id do evento',
   tags: ['Eventos'],
   params: z.object({
     eventId: z
-      .string(genError('eventId', Type.STRING, Required.TRUE))
-      .uuid(genError('eventId', Type.UUID, Required.NULL)),
+      .string(genMsgError('eventId', Type.STRING, Required.TRUE))
+      .uuid(genMsgError('eventId', Type.UUID, Required.NULL)),
   }),
   querystring: z.object({
     page: z.coerce
-      .number(genError('page', Type.NUMBER, Required.FALSE))
-      .int(genError('page', Type.INT, Required.NULL))
-      .positive(genError('page', Type.POSITIVE, Required.NULL))
+      .number(genMsgError('page', Type.NUMBER, Required.FALSE))
+      .int(genMsgError('page', Type.INT, Required.NULL))
+      .positive(genMsgError('page', Type.POSITIVE, Required.NULL))
       .nullish()
       .default(1),
     limit: z.coerce
-      .number(genError('limit', Type.NUMBER, Required.FALSE))
-      .int(genError('limit', Type.INT, Required.NULL))
-      .positive(genError('limit', Type.POSITIVE, Required.NULL))
+      .number(genMsgError('limit', Type.NUMBER, Required.FALSE))
+      .int(genMsgError('limit', Type.INT, Required.NULL))
+      .positive(genMsgError('limit', Type.POSITIVE, Required.NULL))
       .nullish()
       .default(10),
     query: z
-      .string(genError('query', Type.STRING, Required.FALSE))
+      .string(genMsgError('query', Type.STRING, Required.FALSE))
       .nullish(),
   }),
   response: {
     200: z.object({
       currentPage: z
-        .number(genError('currentPage', Type.NUMBER, Required.TRUE))
-        .int(genError('currentPage', Type.INT, Required.NULL))
-        .positive(genError('currentPage', Type.POSITIVE, Required.NULL)),
+        .number(genMsgError('currentPage', Type.NUMBER, Required.TRUE))
+        .int(genMsgError('currentPage', Type.INT, Required.NULL))
+        .positive(genMsgError('currentPage', Type.POSITIVE, Required.NULL)),
       totalPages: z
-        .number(genError('totalPages', Type.NUMBER, Required.TRUE))
-        .int(genError('totalPages', Type.INT, Required.NULL))
-        .positive(genError('totalPages', Type.POSITIVE, Required.NULL)),
+        .number(genMsgError('totalPages', Type.NUMBER, Required.TRUE))
+        .int(genMsgError('totalPages', Type.INT, Required.NULL))
+        .positive(genMsgError('totalPages', Type.POSITIVE, Required.NULL)),
       totalAttendees: z
-        .number(genError('totalAttendees', Type.NUMBER, Required.FALSE))
-        .int(genError('totalAttendees', Type.INT, Required.NULL))
-        .nonnegative(genError('totalAttendees', Type.NONNEGATIVE, Required.NULL))
+        .number(genMsgError('totalAttendees', Type.NUMBER, Required.FALSE))
+        .int(genMsgError('totalAttendees', Type.INT, Required.NULL))
+        .nonnegative(genMsgError('totalAttendees', Type.NONNEGATIVE, Required.NULL))
         .nullish()
         .default(0),
       attendees: z.array(
         z.object({
           id: z
-            .number(genError('attendees', Type.NUMBER, Required.TRUE))
-            .int(genError('attendees', Type.INT, Required.NULL))
-            .positive(genError('attendees', Type.POSITIVE, Required.NULL)),
+            .number(genMsgError('attendees', Type.NUMBER, Required.TRUE))
+            .int(genMsgError('attendees', Type.INT, Required.NULL))
+            .positive(genMsgError('attendees', Type.POSITIVE, Required.NULL)),
           name: z
-            .string(genError('name', Type.STRING, Required.TRUE))
-            .min(4, genError('name', Type.MIN, Required.NULL, '4'))
-            .max(64, genError('name', Type.MAX, Required.NULL, '64')),
+            .string(genMsgError('name', Type.STRING, Required.TRUE))
+            .min(4, genMsgError('name', Type.MIN, Required.NULL, '4'))
+            .max(64, genMsgError('name', Type.MAX, Required.NULL, '64')),
           email: z
-            .string(genError('email', Type.STRING, Required.TRUE))
-            .email(genError('email', Type.EMAIL, Required.NULL)),
+            .string(genMsgError('email', Type.STRING, Required.TRUE))
+            .email(genMsgError('email', Type.EMAIL, Required.NULL)),
           createdAt: z
-            .date(genError('createdAt', Type.DATE, Required.TRUE)),
+            .date(genMsgError('createdAt', Type.DATE, Required.TRUE)),
           eventId: z
-            .string(genError('eventId', Type.STRING, Required.TRUE))
-            .uuid(genError('eventId', Type.UUID, Required.NULL)),
+            .string(genMsgError('eventId', Type.STRING, Required.TRUE))
+            .uuid(genMsgError('eventId', Type.UUID, Required.NULL)),
           checkInAt: z
-            .date(genError('checkInAt', Type.DATE, Required.FALSE))
+            .date(genMsgError('checkInAt', Type.DATE, Required.FALSE))
             .nullish(),
         }),
       ),
@@ -75,39 +75,39 @@ const getEventByIdSchema = {
   tags: ['Eventos'],
   params: z.object({
     eventId: z
-      .string(genError('eventId', Type.STRING, Required.TRUE))
-      .uuid(genError('eventId', Type.UUID, Required.NULL)),
+      .string(genMsgError('eventId', Type.STRING, Required.TRUE))
+      .uuid(genMsgError('eventId', Type.UUID, Required.NULL)),
   }),
   response: {
     200: z.object({
       id: z
-        .string(genError('id', Type.STRING, Required.TRUE))
-        .uuid(genError('id', Type.UUID, Required.NULL)),
+        .string(genMsgError('id', Type.STRING, Required.TRUE))
+        .uuid(genMsgError('id', Type.UUID, Required.NULL)),
       title: z
-        .string(genError('title', Type.STRING, Required.TRUE))
-        .min(4, genError('title', Type.MIN, Required.NULL, '4'))
-        .max(64, genError('title', Type.MAX, Required.NULL, '64')),
+        .string(genMsgError('title', Type.STRING, Required.TRUE))
+        .min(4, genMsgError('title', Type.MIN, Required.NULL, '4'))
+        .max(64, genMsgError('title', Type.MAX, Required.NULL, '64')),
       details: z
-        .string(genError('details', Type.STRING, Required.FALSE))
+        .string(genMsgError('details', Type.STRING, Required.FALSE))
         .nullish(),
       maximumAttendees: z
-        .number(genError('maximumAttendees', Type.NUMBER, Required.FALSE))
-        .int(genError('maximumAttendees', Type.INT, Required.NULL))
-        .positive(genError('maximumAttendees', Type.POSITIVE, Required.NULL))
+        .number(genMsgError('maximumAttendees', Type.NUMBER, Required.FALSE))
+        .int(genMsgError('maximumAttendees', Type.INT, Required.NULL))
+        .positive(genMsgError('maximumAttendees', Type.POSITIVE, Required.NULL))
         .nullish(),
       isActive: z
-        .boolean(genError('isActive', Type.BOOLEAN, Required.TRUE)),
+        .boolean(genMsgError('isActive', Type.BOOLEAN, Required.TRUE)),
       slug: z
-        .string(genError('slug', Type.STRING, Required.TRUE)),
+        .string(genMsgError('slug', Type.STRING, Required.TRUE)),
       createdAt: z
-        .date(genError('createdAt', Type.DATE, Required.TRUE)),
+        .date(genMsgError('createdAt', Type.DATE, Required.TRUE)),
       attendeesAmount: z
-        .number(genError('attendeesAmount', Type.NUMBER, Required.FALSE))
-        .int(genError('attendeesAmount', Type.INT, Required.NULL))
-        .nonnegative(genError('attendeesAmount', Type.NONNEGATIVE, Required.NULL))
+        .number(genMsgError('attendeesAmount', Type.NUMBER, Required.FALSE))
+        .int(genMsgError('attendeesAmount', Type.INT, Required.NULL))
+        .nonnegative(genMsgError('attendeesAmount', Type.NONNEGATIVE, Required.NULL))
         .default(0),
       eventDate: z
-        .date(genError('eventDate', Type.DATE, Required.TRUE))
+        .date(genMsgError('eventDate', Type.DATE, Required.TRUE))
     }),
   }
 };
@@ -117,21 +117,21 @@ const createEventSchema = {
   tags: ['Eventos'],
   body: z.object({
     title: z
-      .string(genError('title', Type.STRING, Required.TRUE))
-      .min(4, genError('title', Type.MIN, Required.NULL, '4'))
-      .max(64, genError('title', Type.MAX, Required.NULL, '64')),
+      .string(genMsgError('title', Type.STRING, Required.TRUE))
+      .min(4, genMsgError('title', Type.MIN, Required.NULL, '4'))
+      .max(64, genMsgError('title', Type.MAX, Required.NULL, '64')),
     details: z
-      .string(genError('details', Type.STRING, Required.FALSE))
+      .string(genMsgError('details', Type.STRING, Required.FALSE))
       .nullish(),
     maximumAttendees: z
-      .number(genError('maximumAttendees', Type.NUMBER, Required.FALSE))
-      .int(genError('maximumAttendees', Type.INT, Required.NULL))
-      .positive(genError('maximumAttendees', Type.POSITIVE, Required.NULL))
+      .number(genMsgError('maximumAttendees', Type.NUMBER, Required.FALSE))
+      .int(genMsgError('maximumAttendees', Type.INT, Required.NULL))
+      .positive(genMsgError('maximumAttendees', Type.POSITIVE, Required.NULL))
       .nullish(),
     isActive: z
-      .boolean(genError('isActive', Type.BOOLEAN, Required.TRUE)),
+      .boolean(genMsgError('isActive', Type.BOOLEAN, Required.TRUE)),
     eventDate: z
-      .date(genError('eventDate', Type.DATE, Required.TRUE)),
+      .date(genMsgError('eventDate', Type.DATE, Required.TRUE)),
   })
     .describe(
       'title: string, mínimo 4 caracteres, máximo 64 caracteres\ndetails: string, não obrigatório\nmaximumAttendees: número inteiro positivo, não obrigatório\nisActive: boolean\neventDate: string no formato 2024-04-18T22:30:00Z',
@@ -139,8 +139,8 @@ const createEventSchema = {
   response: {
     201: z.object({
       eventId: z
-        .string(genError('eventId', Type.STRING, Required.TRUE))
-        .uuid(genError('eventId', Type.UUID, Required.NULL)),
+        .string(genMsgError('eventId', Type.STRING, Required.TRUE))
+        .uuid(genMsgError('eventId', Type.UUID, Required.NULL)),
     }),
   }
 };
