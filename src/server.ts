@@ -10,33 +10,50 @@ import { fastifySwaggerOptions, fastifySwaggerUiOptions } from './helpers/swagge
 import errorHandler from './helpers/errorHandler';
 
 const port = process.env.PORT;
-const fastify = Fastify();
+const app = Fastify();
 let origin: string = '*';
 
 if (process.env.NODE_ENV === 'PROD') {
   origin = 'http://dominio.com.br';
 }
 
-fastify.register(fastifyCors, { origin });
-fastify.register(fastifySwagger, fastifySwaggerOptions);
-fastify.register(fastifySwaggerUi, fastifySwaggerUiOptions);
-fastify.setValidatorCompiler(validatorCompiler);
-fastify.setSerializerCompiler(serializerCompiler);
+app.register(fastifyCors, { origin });
+app.register(fastifySwagger, fastifySwaggerOptions);
+app.register(fastifySwaggerUi, fastifySwaggerUiOptions);
+app.setValidatorCompiler(validatorCompiler);
+app.setSerializerCompiler(serializerCompiler);
 
-fastify.setErrorHandler(errorHandler);
+app.setErrorHandler(errorHandler);
 
 const startServer = async () => {
-  await indexRoute(fastify);
-  await fastify.listen({ port: Number(port), host: '0.0.0.0' });
+  await indexRoute(app);
+  await app.listen({
+    port: Number(port),
+    host: '0.0.0.0'
+  });
 };
+
+const listeners = ['SIGINT', 'SIGTERM'];
+
+listeners.forEach(signal => {
+  process.on(signal, async () => {
+    console.log(`\nClosing signal received: ${signal}`);
+
+    await app.close();
+
+    console.log('Server closed successfully');
+
+    process.exit(0);
+  });
+});
 
 try {
   startServer();
 
-  console.log(`API started in http://localhost:${port}
+  console.log(`Server started in http://localhost:${port}
 API Doc: http://localhost:${port}/docs`);
 } catch (err) {
-  fastify.log.error(err);
+  app.log.error(err);
 
   process.exit(1);
 }

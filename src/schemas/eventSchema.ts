@@ -134,7 +134,7 @@ const createEventSchema = {
       .date(genMsgError('eventDate', Type.DATE, Required.TRUE)),
   })
     .describe(
-      'title: string, mínimo 4 caracteres, máximo 64 caracteres\ndetails: string, não obrigatório\nmaximumAttendees: número inteiro positivo, não obrigatório\nisActive: boolean\neventDate: string no formato 2024-04-18T22:30:00Z',
+      'title: string (mínimo 4 caracteres, máximo 64 caracteres)\ndetails: string (não obrigatório)\nmaximumAttendees: number (número inteiro positivo, não obrigatório)\nisActive: boolean\neventDate: Date (string no formato 2024-04-18T22:30:00Z)',
     ),
   response: {
     201: z.object({
